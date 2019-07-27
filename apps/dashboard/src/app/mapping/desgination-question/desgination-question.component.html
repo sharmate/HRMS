@@ -1,0 +1,232 @@
+<loader *ngIf="isProgressing">
+</loader>
+<div>
+  <div class="header-title">{{ header }}</div>
+  <div *ngIf="isViewVisible">
+    <mat-card class="mat-elevation-z4">
+      <div class="col-sm-12 no-padding">
+        <div class="col-sm-4 no-padding">
+          <mat-form-field>
+            <input matInput (keyup)="applyFilter($event.target.value)" [(ngModel)]="clearValue" placeholder="Search" />
+            <mat-icon role="button" *ngIf="clearValue.length>1" matSuffix (click)="clearSearch()">close</mat-icon>
+          </mat-form-field>
+        </div>
+        <div class="col-sm-4"></div>
+        <div class="col-sm-4 no-padding right-align">
+          <button mat-icon-button *ngIf="selection.hasValue()">
+            <mat-icon (click)="openMultipleDelete()">delete</mat-icon>
+          </button>
+
+          <button mat-icon-button>
+            <mat-icon (click)="addDesignationQuestion()">add_circle</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div fxLayout="row">
+        <table mat-table [dataSource]="dataSourceDetails" class="full-width-table" matSort>
+
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef>
+              <mat-checkbox (change)="$event ? masterToggle() : null"
+                [checked]="selection.hasValue() && isAllSelected()"
+                [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
+              </mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
+                [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+              </mat-checkbox>
+            </td>
+          </ng-container>
+
+
+          <ng-container matColumnDef="sno">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>S No</th>
+            <td mat-cell *matCellDef="let row">{{ row.sno }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="costCenter">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Cost Center</th>
+            <td mat-cell *matCellDef="let row">{{ row.location }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="designation">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Designation</th>
+            <td mat-cell *matCellDef="let row">{{ row.designation_name }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="department">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Department</th>
+            <td mat-cell *matCellDef="let row">{{ row.department_name }}</td>
+          </ng-container>
+
+
+          <ng-container matColumnDef="noOfRounds">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>No of rounds</th>
+            <td mat-cell *matCellDef="let row">
+              {{ row.no_of_round }}
+            </td>
+          </ng-container>
+
+
+          <ng-container matColumnDef="roundName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Round Details</th>
+            <td mat-cell *matCellDef="let row">
+              <div class="container">
+                <div class="col-100">
+
+                  <mat-accordion>
+                    <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          Round Details
+                        </mat-panel-title>
+                      </mat-expansion-panel-header>
+                      <table mat-table [dataSource]="row.round_details" class="full-width-table" matSort>
+
+                        <!-- <ng-container matColumnDef="seq">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Sno</th>
+            <td mat-cell *matCellDef="let temp">
+              {{ temp.round_id }}
+            </td>
+          </ng-container> -->
+
+                        <ng-container matColumnDef="round_name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Round Name</th>
+            <td mat-cell *matCellDef="let temp">
+              {{ temp.name }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="question">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Questions</th>
+            <td mat-cell *matCellDef="let temp">
+              <p *ngFor="let x of temp.questions_details">{{x.interview_question}}</p>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedInsideColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedInsideColumns"></tr>
+        </table>
+        </mat-expansion-panel>
+
+
+        </mat-accordion>
+
+      </div>
+
+  </div>
+
+  </td>
+  </ng-container>
+  <ng-container matColumnDef="action">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Action</th>
+    <td mat-cell *matCellDef="let row">
+      <button mat-icon-button>
+        <mat-icon (click)="editDesignationQuestion(row)">edit</mat-icon>
+      </button>
+      <button mat-icon-button>
+        <mat-icon (click)="openSingleDelete(row)">delete</mat-icon>
+      </button>
+    </td>
+  </ng-container>
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+  <div align="center" *ngIf="isStillLoading">
+    <mat-spinner></mat-spinner>
+  </div>
+  <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" [pageSize]="10"></mat-paginator>
+</div>
+</mat-card>
+</div>
+
+<div *ngIf="isCreateVisible">
+  <mat-card class="mat-elevation-z4">
+    <form [formGroup]="designationQuestionList" (ngSubmit)="saveMapping(isUpdate)">
+      <div class="container">
+        <div class="col-25">
+          <mat-form-field>
+            <mat-label>Cost center</mat-label>
+            <mat-select formControlName="cs_id" required>
+              <!-- <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Search..."> -->
+              <mat-option *ngFor="let cc of costCenterList" [value]="cc.cs_id">
+                {{cc.location}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="col-25">
+          <mat-form-field>
+            <mat-label>Designation</mat-label>
+            <mat-select formControlName="designation_id" required>
+              <mat-option *ngFor="let des of designationList" [value]="des.designation_id">
+                {{des.designation_name}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="col-25">
+          <mat-form-field>
+            <mat-label>Department</mat-label>
+
+            <mat-select formControlName="department_id" (selectionChange)="getRoundNameList($event)" required>
+              <mat-option *ngFor="let dep of departmentList" [value]="dep.department_id">
+                {{dep.department_name}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="col-25">
+          <mat-form-field required>
+            <input matInput min="0" max="15" step="1" isNumber formControlName="no_of_round" placeholder="No of Rounds"
+              (input)="addRoundDetails($event)" [disabled]="isInput">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div *ngIf="noOfRounds>0" required>
+
+        <div formArrayName="round_details" *ngFor="let r of roundsArray.controls; let rIndex = index">
+          <div [formGroupName]="rIndex">
+            <fieldset>
+              <div class="container">
+                <!-- Form Array  -->
+                <div class="col-25">
+                  <mat-form-field>
+                    <mat-label>Round Details</mat-label>
+                    <mat-select formControlName="round_id" (selectionChange)="roundNameFilter($event)" required>
+                      <mat-option *ngFor="let round of roundNameList" [value]="round.interview_round_id"
+                        [disabled]="round.selected">
+                        {{round.round_name}}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <div class="col-75">
+                  <mat-selection-list multiple formControlName="question_id" required>
+                    <mat-list-option *ngFor="let question of questionList" [value]="question.question_id">
+                      {{question.question_name}}
+                    </mat-list-option>
+                  </mat-selection-list>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+
+
+      <mat-card-actions align="end">
+        <button mat-raised-button type="button" class="secondary-button" (click)="closeCreate()">Cancel</button>
+        <button mat-raised-button type="submit" *ngIf="isSave" class="primary-button">Save</button>
+        <button mat-raised-button type="submit" *ngIf="!isSave" class="primary-button">Update</button>
+      </mat-card-actions>
+    </form>
+  </mat-card>
+</div>
+</div>

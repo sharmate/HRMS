@@ -1,0 +1,6 @@
+export { CustomDirectivesModule } from './lib/custom-directives.module'
+export { EmailDirective } from './lib/directives/emailvalidator.directive'
+export { PhoneDirective } from './lib/directives/phonevalidator.directive'
+export { NumberOnlyDirective } from './lib/directives/number-only.directive'
+export { NameOnlyDirective } from './lib/directives/name-only.directive'
+export { AlphanumericDirective } from './lib/directives/alphanumeric.directive'

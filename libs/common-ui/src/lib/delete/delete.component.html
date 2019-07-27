@@ -1,0 +1,32 @@
+<h3 mat-dialog-title align="center">Are you sure?</h3>
+<p align="center">Once deleted, you will not be able to recover records. Total Record
+  ({{this.dataList.length}}) !
+</p>
+<table mat-table [dataSource]="dataList" class="full-width-table">
+  <ng-container matColumnDef="code">
+    <th mat-header-cell *matHeaderCellDef align="center"> {{headers.first}} </th>
+    <td mat-cell *matCellDef="let row"> {{row.code}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef align="center"> {{headers.second}} </th>
+    <td mat-cell *matCellDef="let row"> {{row.name}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="action">
+    <th mat-header-cell *matHeaderCellDef align="center"> {{headers.third}}</th>
+    <td mat-cell *matCellDef="let row">
+      <button mat-icon-button (click)="deleteItem(row)">
+        <mat-icon align="center">
+          clear
+        </mat-icon>
+      </button>
+    </td>
+  </ng-container>
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>
+<mat-dialog-actions class="action_div">
+  <button mat-button class="secondary-button" [mat-dialog-close]="false">No</button>
+  <button mat-button class="primary-button" [mat-dialog-close]="dataList">Yes</button>
+</mat-dialog-actions>

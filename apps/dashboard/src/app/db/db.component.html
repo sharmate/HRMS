@@ -1,0 +1,21 @@
+<loader *ngIf="isProgressing">
+</loader>
+<div class="grid-container">
+  <h1 class="mat-h1">Dashboard</h1>
+  <mat-grid-list cols="4" rowHeight="250px">
+    <mat-grid-tile *ngFor="let db of dashboardList">
+      <mat-card class="dashboard-card mat-elevation-z4">
+        <mat-card-header>
+          <mat-card-title>
+            {{db.name}}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content align="center">
+          <mat-card-title>
+            {{db.count}}
+          </mat-card-title>
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+  </mat-grid-list>
+</div>

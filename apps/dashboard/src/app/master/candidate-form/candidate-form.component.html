@@ -1,0 +1,145 @@
+<loader *ngIf="isProgressing">
+</loader>
+
+<div>
+  <div class="header-title">{{ header }}</div>
+  <mat-card class="mat-elevation-z4">
+
+    <div class="container">
+      <div class="col-33">
+        <input class="ng-hide hidden" id="input-file-id" multiple type="file" accept='.png, .jpg, .jpeg'
+          (change)="uploadImage($event)" />
+        <label for="input-file-id" class="md-button md-raised md-primary">
+          <p class="profile_pic"><img [src]="url" class="tmpUploadImage"></p>
+        </label>
+      </div>
+      <div class="col-33"></div>
+      <div class="col-33"></div>
+
+    </div>
+
+    <div class="container">
+      <div class="col-25">
+        <mat-form-field>
+          <input matInput placeholder="First Name" [(ngModel)]="candidateList.firstName" autocomplete="off" required [formControl]="vFirstName" isName/>
+          <mat-error *ngIf="vFirstName.invalid">{{checkFirstname()}}</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col-25">
+        <mat-form-field>
+          <input matInput placeholder="Middle Name" [(ngModel)]="candidateList.middleName"
+            autocomplete="off" [formControl]="vMiddleName" isName/>
+            <mat-error *ngIf="vMiddleName.invalid">{{checkMiddlename()}}</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col-25">
+        <mat-form-field>
+          <input matInput placeholder="Last Name" required [(ngModel)]="candidateList.lastName" autocomplete="off" [formControl]="vLastName" isName/>
+          <mat-error *ngIf="vLastName.invalid">{{checkLastname()}}</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col-25">
+        <mat-form-field>
+          <input matInput placeholder="Email" required [(ngModel)]="candidateList.email" required autocomplete="off" [formControl]="vEmail"/>
+          <mat-error *ngIf="vEmail.invalid">{{checkEmail()}}</mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="container">
+      <div class="col-25">
+        <mat-form-field>
+          <span matPrefix>+91 &nbsp;</span>
+          <input matInput placeholder="Contact" required minlength="10" maxlength="10" [formControl]="vMobile"
+            [(ngModel)]="candidateList.contact" autocomplete="off" isNumber/>
+            <mat-error *ngIf="vMobile.invalid">{{checkMobile()}}</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col-25">
+        <mat-form-field>
+          <mat-label>Gender</mat-label>
+          <mat-select [(ngModel)]="candidateList.gender" [(value)]="selectedGender" required>
+            <mat-option *ngFor="let i of gender" [value]="i.name">
+              {{ i.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-25">
+        <mat-form-field>
+          <input matInput placeholder="Designation" required [(ngModel)]="candidateList.designation"
+            autocomplete="off" isName/>
+        </mat-form-field>
+      </div>
+      <div class="col-25">
+        <mat-form-field>
+          <input matInput placeholder="Address" required [(ngModel)]="candidateList.address" autocomplete="off" isAlphanumeric />
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="container">
+      <div class="col-25">
+        <mat-form-field>
+          <mat-label>State</mat-label>
+          <mat-select [(ngModel)]="candidateList.state" required [(value)]="selectedState"
+            (valueChange)="getCityList(selectedState)">
+            <mat-option *ngFor="let state of stateList" #selectState [value]="state.id">{{ state.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-25">
+        <mat-form-field>
+          <mat-label>City</mat-label>
+          <mat-select [(ngModel)]="candidateList.city" required [(value)]="selectedCity">
+            <mat-option *ngFor="let city of cityList" #selectCity [value]="city.city_id">{{
+                      city.name
+                    }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-25">
+        <mat-form-field>
+          <input matInput placeholder="Pin Code" minlength="6" maxlength="6" required [formControl]="vPincode"
+            [(ngModel)]="candidateList.pin" autocomplete="off" isNumber/>
+            <mat-error *ngIf="vPincode.invalid">{{checkPincode()}}</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col-25">
+        <mat-form-field>
+          <input matInput [matDatepicker]="dob" placeholder="Choose Date of Birth" [(ngModel)]="candidateList.dob" disabled="true"/>
+          <mat-datepicker-toggle matSuffix [for]="dob"></mat-datepicker-toggle>
+          <mat-datepicker #dob disabled="false"></mat-datepicker>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="container">
+      <div class="col-25">
+        <mat-form-field>
+          <input matInput placeholder="Adhaar No" required minlength="12" maxlength="12"
+            [(ngModel)]="candidateList.adhaar" autocomplete="off" [formControl]="vAdhaar" isNumber/>
+            <mat-error *ngIf="vAdhaar.invalid">{{checkAdhaar()}}</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col-25">
+        <mat-form-field>
+          <input matInput placeholder="Pan Number" required minlength="10" maxlength="10"
+            [(ngModel)]="candidateList.pan" autocomplete="off"  [formControl]="vPan" isAlphanumeric/>
+            <mat-error *ngIf="vPan.invalid">{{checkPan()}}</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col-25">
+        <label for="file">Upload latest resume</label><br>
+        <input class="ng-hide" id="input-file-id" multiple type="file" accept='.pdf' (change)="onUploadFile($event)" />
+      
+      </div>
+      <div class="col-25"></div>
+    </div>
+    <div class="container">
+      <div class="col-33"></div>
+      <div class="col-33"></div>
+      <div class="col-33 right-align col-padding">
+        <button mat-button class="secondary-button" (click)="resetCandidate()">Reset</button>
+        <button mat-button class="primary-button" (click)="saveCandidate()">Save</button>
+      </div>
+    </div>
+  </mat-card>
+</div>

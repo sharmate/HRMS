@@ -1,0 +1,36 @@
+<mat-toolbar color="primary" class="mat-elevation-z4">
+  <button mat-button (click)="openNav()">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <span class="logo">
+    <img src="https://production.tyasuite.com/assets/images/white-logo.png" alt="">
+  </span>
+
+  <span class="spacer"></span>
+
+  <button class="login" mat-icon-button [matMenuTriggerFor]="menu">
+    <mat-icon>person</mat-icon>
+  </button>
+  <mat-menu #menu="matMenu">
+
+    <button mat-menu-item (click)="logout();">
+      <span>LOGOUT</span>
+    </button>
+  </mat-menu>
+
+</mat-toolbar>
+<div id="mySidenav" class="sidenav" (mouseleave)="closeNav()">
+  <!-- <a href="javascript:void(0)" class="closebtn" (click)="closeNav()">
+    <mat-icon mat-mini-fab>close</mat-icon>
+  </a> -->
+  <!-- <a href="javascript:void(0)"> -->
+  <a mat-button mat-button class="closebtn" (click)="closeNav()">&times;</a>
+  <!-- </a> -->
+  <nav>
+    <a mat-button class="nav-link" *ngFor="let link of menuLinks" [routerLink]="link.aurl" routerLinkActive="active">
+      <mat-icon> {{ link.menu_icon }} </mat-icon>
+      <span style="padding-left: 10px">{{ link.menu_name | uppercase }}</span>
+    </a>
+  </nav>
+</div>

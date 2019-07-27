@@ -1,0 +1,293 @@
+<div>
+  <div class="header-title">{{ header }}</div>
+  <div *ngIf="isViewVisible">
+    <mat-card class="mat-elevation-z4">
+      <div class="col-sm-12 no-padding">
+        <div class="col-sm-4 no-padding">
+          <mat-form-field>
+            <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Search" />
+          </mat-form-field>
+        </div>
+        <div class="col-sm-4"></div>
+        <div class="col-sm-4 no-padding right-align">
+          <button mat-icon-button *ngIf="selection.hasValue()">
+            <mat-icon (click)="multipleDelete()">delete</mat-icon>
+          </button>
+          <button mat-icon-button>
+            <mat-icon (click)="addEmployeeMapping()">add_circle</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div fxLayout="row">
+        <table mat-table [dataSource]="dataSource" class="full-width-table" matSort>
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef>
+              <mat-checkbox (change)="$event ? masterToggle() : null"
+                [checked]="selection.hasValue() && isAllSelected()"
+                [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
+              </mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
+                [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+              </mat-checkbox>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="sno">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>S No</th>
+            <td mat-cell *matCellDef="let row">{{ row.sno }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="employee_name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Employee Name</th>
+            <td mat-cell *matCellDef="let row">{{ row.employee_name | titlecase}}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="cost_centers">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Costcenter Details</th>
+            <td mat-cell *matCellDef="let row">
+              <div class="container">
+                <div class="col-100">
+                  <mat-accordion *ngFor="let temp of row.cost_centers">
+                    <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          {{temp.location}}
+                        </mat-panel-title>
+                      </mat-expansion-panel-header>
+                      <table mat-table [dataSource]="temp.departments" class="full-width-table" matSort>
+                        <ng-container matColumnDef="departments">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Departments</th>
+            <td mat-cell *matCellDef="let row">{{row.department_name}}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="rounds">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Round Name</th>
+            <td mat-cell *matCellDef="let row">
+              <p *ngFor="let j of row.round_ids">{{j.name}}</p>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="departmentColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: departmentColumns"></tr>
+        </table>
+        <div align="center" *ngIf="isStillLoading">
+          <mat-spinner></mat-spinner>
+        </div>
+        </mat-expansion-panel>
+        </mat-accordion>
+      </div>
+  </div>
+  </td>
+  </ng-container>
+
+  <ng-container matColumnDef="action">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Action</th>
+    <td mat-cell *matCellDef="let row">
+      <button mat-icon-button>
+        <mat-icon (click)="editMapping(row)">edit</mat-icon>
+      </button>
+      <button mat-icon-button>
+        <mat-icon (click)="deleteMapping(row)">delete</mat-icon>
+      </button>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  <div align="center" *ngIf="isStillLoading">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" [pageSize]="10"></mat-paginator>
+</div>
+</mat-card>
+</div>
+
+<div *ngIf="isCreateVisible">
+
+  <mat-card class="mat-elevation-z4" [style.overflow]="'auto'">
+
+    <div class="container">
+      <div class="col-33">
+        <mat-form-field>
+          <mat-label>Employee Name</mat-label>
+          <mat-select [(ngModel)]="employeeRoundList.employee_id">
+            <mat-option *ngFor="let i of employeeList" [value]="i.id">{{i.name | titlecase}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-33">
+      </div>
+      <div class="col-33"></div>
+    </div>
+
+    <div class="container">
+      <mat-form-field>
+        <mat-label>Select Cost center</mat-label>
+        <mat-select multiple (selectionChange)="selectedCostCenter($event)">
+          <mat-option *ngFor="let cc of costCenterList; let ccIndex = index" [value]="cc.id">
+            {{cc.name | titlecase}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div *ngIf="departmentData?.length >0">
+        <fieldset *ngFor="let dItem of departmentData;let dIndex = index">
+          <mat-selection-list (selectionChange)="selectedDepartment($event, dItem.cId)">
+            <mat-list-option *ngFor="let dep of dItem.dList" [value]="dep.id">{{dep.name}}
+            </mat-list-option>
+          </mat-selection-list>
+        </fieldset>
+      </div>
+
+
+
+
+
+
+
+
+    </div>
+
+
+
+
+
+    <mat-card-actions align="end">
+      <button mat-raised-button class="secondary-button" type="button" (click)="closeCreate()">Cancel</button>
+      <button mat-raised-button class="primary-button" (click)="saveMapping()" type="submit">Save</button>
+    </mat-card-actions>
+
+  </mat-card>
+
+</div>
+</div>
+
+<!--
+<div *ngIf="departmentData.length>0">
+    <fieldset *ngFor="let deptData of departmentData; let dIndex = index">
+      <legend>Cost center</legend>
+
+      <fieldset>
+        <legend>Select Department</legend>
+        <div class="container">
+          <div class="col-50">
+            <mat-selection-list (selectionChange)="selectedDepartment($event, dIndex)">
+              <mat-list-option *ngFor="let dep of deptData.dList" [value]="dep.id">{{dep.name}}
+              </mat-list-option>
+            </mat-selection-list>
+          </div>
+
+
+          <div class="col-50">
+              <div *ngIf="roundNameData.length>0">
+                <fieldset *ngFor="let roundData of roundNameData; let rIndex = index">
+                  <legend>Select Department</legend>
+                  <mat-selection-list (selectionChange)="selectedRound($event, rIndex)">
+                    <mat-list-option *ngFor="let round of roundData.rList" [value]="round.id">{{round.name}}
+                    </mat-list-option>
+                  </mat-selection-list>
+                </fieldset>
+              </div>
+            </div>
+        </div>
+      </fieldset>
+
+
+    </fieldset>
+  </div>
+ -->
+
+<!-- <div *ngIf="isCreateVisible">
+
+  <mat-card class="mat-elevation-z4" [style.overflow]="'auto'">
+    <form [formGroup]="mappingForm" (ngSubmit)="saveMapping()">
+
+      <div class="container">
+        <div class="col-33">
+          <mat-form-field>
+            <mat-label>Employee Name</mat-label>
+            <mat-select formControlName="employee_id">
+              <mat-option *ngFor="let i of employeeList" [value]="i.id">{{i.name | titlecase}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="col-33"></div>
+        <div class="col-33"></div>
+      </div>
+
+      <div formArrayName="cost_centers"
+        *ngFor="let costItem of mappingForm.get('cost_centers').controls; let cIndex= index ">
+        <div [formGroupName]="cIndex">
+          <div class="container">
+            <div class="col-33">
+              <mat-form-field>
+                <mat-label>Select Cost center</mat-label>
+                <mat-select multiple formControlName="cost_center_id" (selectionChange)="selectedCostCenter($event)">
+                  <mat-option *ngFor="let cc of costCenterList" [value]="cc.id">{{cc.name | titlecase}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="col-33"></div>
+            <div class="col-33"></div>
+          </div>
+          <div class="container">
+            <div class="col-100">
+              <div formArrayName="departments"
+                *ngFor="let deptItem of costItem.get('departments').controls; let dIndex= index">
+                <div *ngIf="ccArray.length>0" [formGroupName]="dIndex">
+                  <div *ngFor="let dep of departmentData; let dxIndex=index">
+                    <fieldset>
+                      <legend>{{dep.cost}} | {{dxIndex}}</legend>
+                      <div class="container">
+                        <div class="col-50">
+                          <fieldset>
+                            <legend>Select Department</legend>
+                            <mat-selection-list formControlName="department_id"
+                              (selectionChange)="selectedDepartment($event, dxIndex)">
+                              <mat-list-option *ngFor="let dep of dep.dList" [value]="dep.id">{{dep.name}}
+                              </mat-list-option>
+                            </mat-selection-list>
+                          </fieldset>
+                        </div>
+
+                        <div class="col-50">
+                          <div>
+                            <div *ngIf="deptArray?.length>0">
+                              <div *ngFor="let dep of deptArray">
+                                <fieldset>
+                                  <legend>{{dep | json}}</legend>
+                                  <mat-selection-list formControlName="round_ids"
+                                    (selectionChange)="selectedRound($event)">
+                                    <mat-list-option *ngFor="let round of roundNameList" [value]="round.id">
+                                      {{round.name}}
+                                    </mat-list-option>
+                                  </mat-selection-list>
+                                </fieldset>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </fieldset>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <mat-card-actions align="end">
+        <button mat-raised-button class="secondary-button" type="button" (click)="closeCreate()">Cancel</button>
+        <button mat-raised-button class="primary-button" type="submit">Save</button>
+      </mat-card-actions>
+    </form>
+  </mat-card>
+
+</div> -->
